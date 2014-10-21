@@ -52,7 +52,10 @@ public class Dijkstra {
     opt = new Option("p", false, "print weights");
     opt.setRequired(false);
     options.addOption(opt);
-    
+    opt = new Option("t", false, "print total time");
+    opt.setRequired(false);
+    options.addOption(opt);   
+
     CommandLineParser parser = new BasicParser();
     CommandLine cmd = null;
     try {
@@ -66,6 +69,7 @@ public class Dijkstra {
     String graphFile = cmd.getOptionValue("f");
     String dbDirectory = cmd.getOptionValue("d");
     boolean print = cmd.hasOption('p');
+    boolean printTime = cmd.hasOption('t');
     
     GraphDatabaseService graphDb = 
         new GraphDatabaseFactory().newEmbeddedDatabase(dbDirectory);
@@ -74,6 +78,8 @@ public class Dijkstra {
     
     PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(                
         PathExpanders.forTypeAndDirection(FRIEND, Direction.BOTH ), WEIGHT);
+
+    long startTime = System.currentTimeMillis();
 
     Scanner fileScanner = new Scanner(new File(graphFile));
     while (fileScanner.hasNextLine()) {
@@ -102,6 +108,10 @@ public class Dijkstra {
       }
     }
   
+    if (printTime) {
+      System.out.println("Time="+(System.currentTimeMillis()-startTime));
+    }
+
     fileScanner.close();
     tx.success();
     tx.close();
