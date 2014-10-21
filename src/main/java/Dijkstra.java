@@ -20,6 +20,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PathExpanders;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.ResourceIterator;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 
@@ -69,6 +70,8 @@ public class Dijkstra {
     GraphDatabaseService graphDb = 
         new GraphDatabaseFactory().newEmbeddedDatabase(dbDirectory);
     
+    Transaction tx = graphDb.beginTx();
+    
     PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(                
         PathExpanders.forTypeAndDirection(FRIEND, Direction.BOTH ), WEIGHT);
 
@@ -100,5 +103,8 @@ public class Dijkstra {
     }
   
     fileScanner.close();
+    tx.success();
+    tx.close();
+    graphDb.shutdown();
   }
 }
