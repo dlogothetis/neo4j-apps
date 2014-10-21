@@ -75,7 +75,7 @@ public class Importer {
   
       long srcId = Long.parseLong(tokens[0]);
       long dstId = Long.parseLong(tokens[1]);
-      float weight = Float.parseFloat(tokens[3]);
+      float weight = Float.parseFloat(tokens[2]);
 
       Long srcNode = vertex2node.get(srcId);
       if (srcNode==null) {
