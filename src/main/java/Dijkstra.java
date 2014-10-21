@@ -77,11 +77,6 @@ public class Dijkstra {
       String line = fileScanner.nextLine();
       String[] tokens = line.split(SPLITTER);
   
-      if (tokens.length!=3) {
-        System.out.println("Incorrect line:"+line);
-        System.exit(0);
-      }
-  
       ResourceIterator<Node> iterator = null;
 
       long srcId = Long.parseLong(tokens[0]);
