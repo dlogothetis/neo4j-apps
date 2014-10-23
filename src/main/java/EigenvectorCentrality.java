@@ -27,6 +27,7 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.tooling.GlobalGraphOperations;
 
 
 /**
@@ -53,7 +54,7 @@ public class EigenvectorCentrality {
     opt = new Option("d", true, "graph db directory");
     opt.setRequired(true);
     options.addOption(opt);
-    opt = new Option("p", false, "print weights");
+    opt = new Option("p", false, "print centralities");
     opt.setRequired(false);
     options.addOption(opt);
     opt = new Option("t", false, "print total time");
@@ -105,15 +106,30 @@ public class EigenvectorCentrality {
       nodeSet.add(node);
     }
 
+    Set<Relationship> relationshipSet = new HashSet();
+    for (Relationship rel : 
+      GlobalGraphOperations.at(graphDb).getAllRelationships()) {
+      relationshipSet.add(rel);
+    }
+
     EigenvectorCentralityArnoldi centrality = 
         new EigenvectorCentralityArnoldi(Direction.BOTH, evaluator, 
-//            nodeSet, relationshipSet, 0.0001);
-            nodeSet, null, 0.0001);
+            nodeSet, relationshipSet, 0.0001);
 
     long startTime = System.currentTimeMillis();
-  
+    
+    centrality.calculate();
+    
+    long endTime = System.currentTimeMillis();
+
+    if (print) {
+      for (Node n : nodeSet) {
+        System.out.println(n.getProperty(ID)+" "+centrality.getCentrality(n));
+      }
+    }
+
     if (printTime) {
-      System.out.println("Time="+(System.currentTimeMillis()-startTime));
+      System.out.println("Time="+(endTime-startTime));
     }
 
     fileScanner.close();

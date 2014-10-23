@@ -1,2 +1,2 @@
-neo4j-importer
+neo4j-apps
 ==============
