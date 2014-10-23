@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>logothetis.me</groupId>
-	<artifactId>neo4j-importer</artifactId>
+	<artifactId>neo4j-apps</artifactId>
 	<packaging>jar</packaging>
 	<version>0.1</version>
-	<name>neo4j-importer</name>
+	<name>neo4j-apps</name>
 	<url>http://maven.apache.org</url>
 	<dependencies>
 		<dependency>
