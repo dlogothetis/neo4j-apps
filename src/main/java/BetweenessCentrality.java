@@ -11,7 +11,12 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.neo4j.graphalgo.CostEvaluator;
+import org.neo4j.graphalgo.impl.centrality.BetweennessCentrality;
 import org.neo4j.graphalgo.impl.centrality.EigenvectorCentralityArnoldi;
+import org.neo4j.graphalgo.impl.shortestpath.SingleSourceShortestPath;
+import org.neo4j.graphalgo.impl.shortestpath.SingleSourceShortestPathDijkstra;
+import org.neo4j.graphalgo.impl.util.DoubleAdder;
+import org.neo4j.graphalgo.impl.util.DoubleComparator;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.DynamicRelationshipType;
@@ -34,7 +39,7 @@ import org.neo4j.tooling.GlobalGraphOperations;
  * @author dl
  *
  */
-public class EigenvectorCentrality {
+public class BetweenessCentrality {
 
   private static final String SPLITTER = "\\s+";
   private static final String ID = "id";
@@ -73,24 +78,33 @@ public class EigenvectorCentrality {
       System.out.println(e);
       System.exit(-1);
     }
-    
+
     String graphFile = cmd.getOptionValue("f");
     String dbDirectory = cmd.getOptionValue("d");
     boolean print = cmd.hasOption('p');
     boolean printTime = cmd.hasOption('t');
-    
+
     GraphDatabaseService graphDb = 
         new GraphDatabaseFactory().newEmbeddedDatabase(dbDirectory);
-    
+
     Transaction tx = graphDb.beginTx();
-    
+
+    /*
+    CostEvaluator evaluator = new CostEvaluator() {
+      @Override
+      public Object getCost(Relationship relationship, Direction direction) {
+        return relationship.getProperty(WEIGHT);
+      }
+    };
+    */
+
     Set<Node> nodeSet = new HashSet<Node>();
 
     Scanner fileScanner = new Scanner(new File(graphFile));
     while (fileScanner.hasNextLine()) {
       String line = fileScanner.nextLine();
       String[] tokens = line.split(SPLITTER);
-  
+
       ResourceIterator<Node> iterator = null;
 
       long id = Long.parseLong(tokens[0]);
@@ -102,10 +116,10 @@ public class EigenvectorCentrality {
       nodeSet.add(node);
     }
 
-//    Set<Node> allNodes = new HashSet<Node>();
-//    for (Node n : GlobalGraphOperations.at(graphDb).getAllNodes()) {
-//      allNodes.add(n);
-//    }
+    //    Set<Node> allNodes = new HashSet<Node>();
+    //    for (Node n : GlobalGraphOperations.at(graphDb).getAllNodes()) {
+    //      allNodes.add(n);
+    //    }
 
     Set<Relationship> relationshipSet = new HashSet();
     for (Relationship rel : 
@@ -113,14 +127,17 @@ public class EigenvectorCentrality {
       relationshipSet.add(rel);
     }
 
-    EigenvectorCentralityArnoldi centrality = 
-        new EigenvectorCentralityArnoldi(Direction.BOTH, EVALUATOR, 
-            nodeSet, relationshipSet, 0.0001);
+//    EigenvectorCentralityArnoldi centrality = 
+//        new EigenvectorCentralityArnoldi(Direction.BOTH, EVALUATOR,
+//            nodeSet, relationshipSet, 0.0001);
+    
+    BetweennessCentrality<Double> centrality = new BetweennessCentrality<Double>(
+        getSingleSourceShortestPath(), nodeSet);
 
     long startTime = System.currentTimeMillis();
-    
+
     centrality.calculate();
-    
+
     long endTime = System.currentTimeMillis();
 
     if (print) {
@@ -137,5 +154,11 @@ public class EigenvectorCentrality {
     tx.success();
     tx.close();
     graphDb.shutdown();
+  }
+
+
+  protected static SingleSourceShortestPath<Double> getSingleSourceShortestPath() {
+    return new SingleSourceShortestPathDijkstra<Double>(0.0, null, EVALUATOR, 
+        new DoubleAdder(), new DoubleComparator(), Direction.BOTH, FRIEND);
   }
 }
