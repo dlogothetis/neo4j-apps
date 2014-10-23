@@ -106,6 +106,11 @@ public class EigenvectorCentrality {
       nodeSet.add(node);
     }
 
+    Set<Node> allNodes = new HashSet<Node>();
+    for (Node n : GlobalGraphOperations.at(graphDb).getAllNodes()) {
+      allNodes.add(n);
+    }
+
     Set<Relationship> relationshipSet = new HashSet();
     for (Relationship rel : 
       GlobalGraphOperations.at(graphDb).getAllRelationships()) {
@@ -114,7 +119,7 @@ public class EigenvectorCentrality {
 
     EigenvectorCentralityArnoldi centrality = 
         new EigenvectorCentralityArnoldi(Direction.BOTH, evaluator, 
-            nodeSet, relationshipSet, 0.0001);
+            allNodes, relationshipSet, 0.0001);
 
     long startTime = System.currentTimeMillis();
     
