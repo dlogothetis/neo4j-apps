@@ -14,6 +14,12 @@ import org.neo4j.kernel.Traversal;
 
 import java.io.IOException;
 
+
+/**
+ * Implementation of connected components found
+ * here: https://github.com/maxdemarzi/neo_cc
+ * 
+ */
 public class ConnectedComponents {
 
   private static final RelationshipType FRIEND = 
