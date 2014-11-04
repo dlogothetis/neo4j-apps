@@ -19,6 +19,8 @@ import java.io.IOException;
  * Implementation of connected components found
  * here: https://github.com/maxdemarzi/neo_cc
  * 
+ * This application actually modified the database by adding a CCid property
+ * in each node, indicating the component ID the node belongs to.
  */
 public class ConnectedComponents {
 
@@ -27,9 +29,7 @@ public class ConnectedComponents {
 
   public static void main(String[] args) throws IOException {
     Options options = new Options();
-    Option opt = new Option("f", true, "input edge file");
-    opt.setRequired(true);
-    options.addOption(opt);
+    Option opt;
     opt = new Option("d", true, "graph db directory");
     opt.setRequired(true);
     options.addOption(opt);
@@ -50,7 +50,6 @@ public class ConnectedComponents {
       System.exit(-1);
     }
 
-    String graphFile = cmd.getOptionValue("f");
     String dbDirectory = cmd.getOptionValue("d");
     boolean print = cmd.hasOption('p');
     boolean printTime = cmd.hasOption('t');
